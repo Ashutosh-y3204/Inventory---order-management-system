@@ -10,25 +10,32 @@ export default function Signup() {
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (form.password !== form.confirm) {
-      toast.error('Passwords do not match')
-      return
-    }
-    setLoading(true)
-    try {
-      await signup(form.name, form.email, form.password)
-      toast.success('Account created!')
-      navigate('/dashboard')
-    } catch (err) {
-     toast.error(
-  err.response?.data?.detail?.[0]?.msg || 'Signup failed'
-)
-    } finally {
-      setLoading(false)
-    }
+  e.preventDefault()
+
+  if (form.password !== form.confirm) {
+    toast.error('Passwords do not match')
+    return
   }
 
+  setLoading(true)
+
+  try {
+    await signup(form.name, form.email, form.password)
+    toast.success('Account created!')
+    navigate('/dashboard')
+  } catch (err) {
+    const message =
+      Array.isArray(err.response?.data?.detail)
+        ? err.response.data.detail.map(d => d.msg).join(', ')
+        : err.response?.data?.detail ||
+          err.message ||
+          'Signup failed'
+
+    toast.error(message)
+  } finally {
+    setLoading(false)
+  }
+}
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
 
   return (

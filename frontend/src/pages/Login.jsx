@@ -10,19 +10,27 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      await login(email, password)
-      toast.success('Welcome back!')
-      navigate('/dashboard')
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Login failed')
-    } finally {
-      setLoading(false)
-    }
+ const handleSubmit = async (e) => {
+  e.preventDefault()
+  setLoading(true)
+
+  try {
+    await login(email, password)
+    toast.success('Welcome back!')
+    navigate('/dashboard')
+  } catch (err) {
+    const message =
+      Array.isArray(err.response?.data?.detail)
+        ? err.response.data.detail.map(d => d.msg).join(', ')
+        : err.response?.data?.detail ||
+          err.message ||
+          'Login failed'
+
+    toast.error(message)
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)'}}>
